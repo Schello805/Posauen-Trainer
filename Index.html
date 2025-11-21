@@ -4,7 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Posaune Meister - Complete Guide</title>
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ffc107">
+    <link rel="apple-touch-icon" href="posaune.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <title>Posaunen Trainer</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -23,7 +30,10 @@
     <div class="container-fluid bg-body-tertiary border-bottom py-2 sticky-top shadow-sm">
         <div class="container d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-3">
-                <div class="fw-bold text-warning"><i class="bi bi-music-note-beamed"></i> Posaune Start</div>
+                <div class="fw-bold text-warning d-flex align-items-center gap-2">
+                    <img src="posaune.png" alt="Logo" height="32" class="d-inline-block align-text-top">
+                    Posaune Start
+                </div>
 
                 <!-- Level Badge -->
                 <div class="badge bg-primary rounded-pill p-2 d-flex align-items-center gap-2">
@@ -333,14 +343,37 @@
                     <div class="card shadow border-0 mb-4">
                         <div class="card-header bg-body-secondary">
                             <h5 class="mb-0">Steuerung</h5>
-                        </div>
-                        <div class="card-body">
-                            <ul>
-                                <li><strong>PC / Tablet:</strong> Ziehe den Slider am Griff oder klicke direkt auf die
-                                    Zahlen im Bild.</li>
-                                <li><strong>Smartphone:</strong> Nutze die großen runden Buttons (1-7) unter der Grafik.
-                                </li>
+                            ```
+                            <li><strong>PC / Tablet:</strong> Ziehe den Slider am Griff oder klicke direkt auf die
+                                Zahlen im Bild.</li>
+                            <li><strong>Smartphone:</strong> Nutze die großen runden Buttons (1-7) unter der Grafik.
+                            </li>
                             </ul>
+                        </div>
+                    </div>
+
+                    <!-- Grifftabelle -->
+                    <div class="card shadow border-0 mb-4">
+                        <div class="card-header bg-warning text-dark fw-bold">
+                            <i class="bi bi-grid-3x3"></i> Grifftabelle & Positionen
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover mb-0 align-middle text-center table-ref"
+                                    id="referenceTable">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th style="width: 10%">Pos</th>
+                                            <th style="width: 30%">Anfänger (B-Dur)</th>
+                                            <th style="width: 30%">Fortgeschritten</th>
+                                            <th style="width: 30%">Profi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Wird per JS gefüllt -->
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
 
@@ -377,10 +410,26 @@
         </div>
     </div>
 
-    <footer class="text-center py-4 text-muted mt-5"><small>2025 Posaune Start | V8.0 Final Guide</small></footer>
+    <!-- Footer -->
+    <footer class="text-center text-muted py-4 mt-5 border-top small">
+        <div class="container">
+            Erstellt von M. Schellenberger 11/2025 mit Gemini (<a href="https://Michael.schellenberger.biz"
+                target="_blank" class="text-decoration-none text-muted">Michael.schellenberger.biz</a>)
+        </div>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="script.js"></script>
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker registered!', reg))
+                    .catch(err => console.log('Service Worker registration failed', err));
+            });
+        }
+    </script>
 </body>
 
 </html>

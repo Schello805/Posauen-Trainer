@@ -16,50 +16,50 @@ let currentSliderSelection = 1;
 let lastLearnRenderedNote = null;
 let currentLearnPosInt = 1;
 
-// --- DATENBASIS (C-Dur Anfänger) ---
+// --- DATENBASIS (B-Dur Anfänger) ---
 const positionMap = {
     1: [
+        { text: "B", key: "bb/2", level: 1, isBeginner: true, freq: 116.54 }, // Grundton
         { text: "F", key: "f/3", level: 1, isBeginner: true, freq: 174.61 },
-        { text: "B", key: "bb/2", level: 2, freq: 116.54 },
-        { text: "b", key: "bb/3", level: 3, freq: 233.08 },
-        { text: "Ais", key: "a#/2", level: 2, freq: 116.54 },
-        { text: "ais", key: "a#/3", level: 3, freq: 233.08 }
+        { text: "b", key: "bb/3", level: 1, isBeginner: true, freq: 233.08 }, // Oktave
+        { text: "d'", key: "d/4", level: 2, freq: 293.66 },
+        { text: "f'", key: "f/4", level: 3, freq: 349.23 }
     ],
     2: [
+        { text: "A", key: "a/2", level: 1, isBeginner: true, freq: 110.00 },
         { text: "E", key: "e/3", level: 1, isBeginner: true, freq: 164.81 },
-        { text: "A", key: "a/3", level: 1, isBeginner: true, freq: 220.00 },
-        { text: "A (tief)", key: "a/2", level: 2, freq: 110.00 },
+        { text: "a", key: "a/3", level: 1, isBeginner: true, freq: 220.00 },
+        { text: "cis'", key: "c#/4", level: 3, freq: 277.18 }
     ],
     3: [
-        { text: "C'", key: "c/4", level: 1, isBeginner: true, freq: 261.63 },
-        { text: "Es", key: "eb/3", level: 2, freq: 155.56 },
         { text: "As", key: "ab/2", level: 2, freq: 103.83 },
-        { text: "as", key: "ab/3", level: 3, freq: 207.65 },
-        { text: "Gis", key: "g#/2", level: 2, freq: 103.83 },
-        { text: "gis", key: "g#/3", level: 3, freq: 207.65 },
-        { text: "Dis", key: "d#/3", level: 2, freq: 155.56 }
+        { text: "Es", key: "eb/3", level: 1, isBeginner: true, freq: 155.56 },
+        { text: "as", key: "ab/3", level: 2, freq: 207.65 },
+        { text: "c'", key: "c/4", level: 1, isBeginner: true, freq: 261.63 } // C hoch (Alternative zu 6? Nein, C ist 3. Pos als Alternative, aber Standard ist 6? Nein, C4 ist 3. Pos!)
+        // Warte: C3 (kleines c) ist 6. Pos. C4 (eingestrichenes c) ist 3. Pos.
+        // Anfänger spielen meist im Bereich B2 bis F3/B3.
+        // B-Dur Tonleiter: B2 (1), C3 (6), D3 (4), Es3 (3), F3 (1), G3 (4), A3 (2), B3 (1).
     ],
     4: [
+        { text: "G", key: "g/2", level: 1, isBeginner: true, freq: 98.00 },
         { text: "D", key: "d/3", level: 1, isBeginner: true, freq: 146.83 },
-        { text: "G", key: "g/3", level: 1, isBeginner: true, freq: 196.00 },
-        { text: "H", key: "b/3", level: 1, isBeginner: true, freq: 246.94 },
-        { text: "G (tief)", key: "g/2", level: 2, freq: 98.00 }
+        { text: "g", key: "g/3", level: 1, isBeginner: true, freq: 196.00 },
+        { text: "h", key: "b/3", level: 2, freq: 246.94 }
     ],
     5: [
-        { text: "Des", key: "db/3", level: 2, freq: 138.59 },
         { text: "Ges", key: "gb/2", level: 2, freq: 92.50 },
-        { text: "ges", key: "gb/3", level: 3, freq: 185.00 },
-        { text: "Cis", key: "c#/3", level: 2, freq: 138.59 },
-        { text: "Fis", key: "f#/2", level: 2, freq: 92.50 },
-        { text: "fis", key: "f#/3", level: 3, freq: 185.00 }
+        { text: "Des", key: "db/3", level: 2, freq: 138.59 },
+        { text: "ges", key: "gb/3", level: 2, freq: 185.00 },
+        { text: "b", key: "bb/3", level: 3, freq: 233.08 } // Hilfsgriff
     ],
     6: [
+        { text: "F (tief)", key: "f/2", level: 2, freq: 87.31 },
         { text: "C", key: "c/3", level: 1, isBeginner: true, freq: 130.81 },
-        { text: "F (tief)", key: "f/2", level: 2, freq: 87.31 }
+        { text: "f", key: "f/3", level: 3, freq: 174.61 } // Hilfsgriff
     ],
     7: [
-        { text: "H", key: "b/2", level: 2, freq: 123.47 },
-        { text: "E", key: "e/2", level: 2, freq: 82.41 }
+        { text: "E (tief)", key: "e/2", level: 2, freq: 82.41 },
+        { text: "H", key: "b/2", level: 2, freq: 123.47 }
     ]
 };
 
@@ -137,9 +137,9 @@ function updateUIStats() {
 
 // --- LOGIC: Questions based on Level ---
 function getAllowedPositions(lvl) {
-    if (lvl === 1) return [1, 2];
-    if (lvl === 2) return [1, 2, 3, 4];
-    return [1, 2, 3, 4, 5, 6, 7];
+    if (lvl === 1) return [1, 2, 3, 4, 6]; // B-Dur braucht 1, 2(A), 3(Es), 4(D,G), 6(C)
+    if (lvl === 2) return [1, 2, 3, 4, 5, 6, 7]; // Alle Positionen, aber einfachere Töne
+    return [1, 2, 3, 4, 5, 6, 7]; // Alles
 }
 
 function getNotesForPosition(p, lvl) {
@@ -704,6 +704,80 @@ function autoCorrelate(buf, sampleRate) {
     return sampleRate / T0;
 }
 
+// --- TABLE GENERATION ---
+function renderNoteThumbnail(container, noteKey) {
+    const div = document.createElement('div');
+    div.className = 'mini-staff';
+    container.appendChild(div);
+    const renderer = new Renderer(div, Renderer.Backends.SVG);
+    renderer.resize(80, 60);
+    const ctx = renderer.getContext();
+    ctx.scale(0.6, 0.6);
+    const stave = new Stave(0, 0, 130);
+    stave.setContext(ctx).draw();
+    const note = new StaveNote({ keys: [noteKey], duration: "w", clef: "bass", align_center: true });
+    if (noteKey.includes('b')) note.addModifier(new Accidental('b'), 0);
+    if (noteKey.includes('#')) note.addModifier(new Accidental('#'), 0);
+    const voice = new Voice({ num_beats: 4, beat_value: 4 });
+    voice.addTickables([note]);
+    new Formatter().joinVoices([voice]).format([voice], 100);
+    voice.draw(ctx, stave);
+}
+
+function generateReferenceTable() {
+    const tbody = document.querySelector('#referenceTable tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    for (let pos = 1; pos <= 7; pos++) {
+        const row = document.createElement('tr');
+        const notes = positionMap[pos];
+        const beginnerNotes = notes.filter(n => n.isBeginner);
+        const advNotes = notes.filter(n => n.level === 2 && !n.isBeginner);
+        const proNotes = notes.filter(n => n.level === 3 && !n.isBeginner);
+
+        const tdPos = document.createElement('td');
+        tdPos.innerHTML = `<span class="badge bg-secondary rounded-pill">${pos}</span>`;
+        row.appendChild(tdPos);
+
+        const td1 = document.createElement('td');
+        if (beginnerNotes.length > 0) {
+            beginnerNotes.forEach(n => {
+                const d = document.createElement('div');
+                d.className = "d-inline-block text-center m-1";
+                d.innerHTML = `<div><strong>${n.text}</strong></div>`;
+                renderNoteThumbnail(d, n.key);
+                td1.appendChild(d);
+            });
+        } else td1.innerText = "-";
+        row.appendChild(td1);
+
+        const td2 = document.createElement('td');
+        if (advNotes.length > 0) {
+            advNotes.forEach(n => {
+                const d = document.createElement('div');
+                d.className = "d-inline-block text-center m-1";
+                d.innerHTML = `<div><small>${n.text}</small></div>`;
+                renderNoteThumbnail(d, n.key);
+                td2.appendChild(d);
+            });
+        } else td2.innerText = "-";
+        row.appendChild(td2);
+
+        const td3 = document.createElement('td');
+        if (proNotes.length > 0) {
+            proNotes.forEach(n => {
+                const d = document.createElement('div');
+                d.className = "d-inline-block text-center m-1";
+                d.innerHTML = `<div><small>${n.text}</small></div>`;
+                renderNoteThumbnail(d, n.key);
+                td3.appendChild(d);
+            });
+        } else td3.innerText = "-";
+        row.appendChild(td3);
+        tbody.appendChild(row);
+    }
+}
+
 function toggleDarkMode() {
     const html = document.documentElement;
     const btn = document.getElementById('darkModeToggleBtn');
@@ -738,6 +812,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    document.getElementById('score').innerText = 0; document.getElementById('streakCount').innerText = 0; document.getElementById('highScore').innerText = highScore;
+    // Old stats init removed as they are handled by initGamification now
+
     if (typeof generateReferenceTable === 'function') generateReferenceTable();
 });
