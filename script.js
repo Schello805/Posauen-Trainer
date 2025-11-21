@@ -19,26 +19,23 @@ let currentLearnPosInt = 1;
 // --- DATENBASIS (B-Dur Anfänger) ---
 const positionMap = {
     1: [
-        { text: "B", key: "bb/2", level: 1, isBeginner: true, freq: 116.54 }, // Grundton
+        { text: "B", key: "bb/2", level: 1, isBeginner: true, freq: 116.54 },
         { text: "F", key: "f/3", level: 1, isBeginner: true, freq: 174.61 },
-        { text: "b", key: "bb/3", level: 1, isBeginner: true, freq: 233.08 }, // Oktave
-        { text: "d'", key: "d/4", level: 2, freq: 293.66 },
-        { text: "f'", key: "f/4", level: 3, freq: 349.23 }
+        { text: "b", key: "bb/3", level: 1, isBeginner: true, freq: 233.08 },
+        { text: "d", key: "d/4", level: 2, freq: 293.66 },
+        { text: "f", key: "f/4", level: 3, freq: 349.23 }
     ],
     2: [
         { text: "A", key: "a/2", level: 1, isBeginner: true, freq: 110.00 },
         { text: "E", key: "e/3", level: 1, isBeginner: true, freq: 164.81 },
         { text: "a", key: "a/3", level: 1, isBeginner: true, freq: 220.00 },
-        { text: "cis'", key: "c#/4", level: 3, freq: 277.18 }
+        { text: "cis", key: "c#/4", level: 3, freq: 277.18 }
     ],
     3: [
         { text: "As", key: "ab/2", level: 2, freq: 103.83 },
         { text: "Es", key: "eb/3", level: 1, isBeginner: true, freq: 155.56 },
         { text: "as", key: "ab/3", level: 2, freq: 207.65 },
-        { text: "c'", key: "c/4", level: 1, isBeginner: true, freq: 261.63 } // C hoch (Alternative zu 6? Nein, C ist 3. Pos als Alternative, aber Standard ist 6? Nein, C4 ist 3. Pos!)
-        // Warte: C3 (kleines c) ist 6. Pos. C4 (eingestrichenes c) ist 3. Pos.
-        // Anfänger spielen meist im Bereich B2 bis F3/B3.
-        // B-Dur Tonleiter: B2 (1), C3 (6), D3 (4), Es3 (3), F3 (1), G3 (4), A3 (2), B3 (1).
+        { text: "c", key: "c/4", level: 1, isBeginner: true, freq: 261.63 }
     ],
     4: [
         { text: "G", key: "g/2", level: 1, isBeginner: true, freq: 98.00 },
@@ -50,12 +47,12 @@ const positionMap = {
         { text: "Ges", key: "gb/2", level: 2, freq: 92.50 },
         { text: "Des", key: "db/3", level: 2, freq: 138.59 },
         { text: "ges", key: "gb/3", level: 2, freq: 185.00 },
-        { text: "b", key: "bb/3", level: 3, freq: 233.08 } // Hilfsgriff
+        { text: "b", key: "bb/3", level: 3, freq: 233.08 }
     ],
     6: [
         { text: "F (tief)", key: "f/2", level: 2, freq: 87.31 },
         { text: "C", key: "c/3", level: 1, isBeginner: true, freq: 130.81 },
-        { text: "f", key: "f/3", level: 3, freq: 174.61 } // Hilfsgriff
+        { text: "f", key: "f/3", level: 3, freq: 174.61 }
     ],
     7: [
         { text: "E (tief)", key: "e/2", level: 2, freq: 82.41 },
@@ -486,10 +483,24 @@ function checkQuizAnswer() {
 }
 
 function switchMainView(v) {
-    const t = document.getElementById('view-trainer'); const i = document.getElementById('view-instructions');
-    if (v === 'trainer') { t.classList.remove('d-none'); i.classList.add('d-none'); if (currentQuizQuestion) renderVexFlowNotes("quizStaff", [currentQuizQuestion.key]); }
-    else { t.classList.add('d-none'); i.classList.remove('d-none'); }
-    const nb = document.getElementById('navbarNav'); if (nb.classList.contains('show')) new bootstrap.Collapse(nb).hide();
+    const t = document.getElementById('view-trainer');
+    const i = document.getElementById('view-instructions');
+
+    if (v === 'trainer') {
+        t.classList.remove('d-none');
+        i.classList.add('d-none');
+        if (currentQuizQuestion) renderVexFlowNotes("quizStaff", [currentQuizQuestion.key]);
+    } else {
+        t.classList.add('d-none');
+        i.classList.remove('d-none');
+        // Generate table when switching to instructions
+        if (typeof generateReferenceTable === 'function') {
+            generateReferenceTable();
+        }
+    }
+
+    const nb = document.getElementById('navbarNav');
+    if (nb && nb.classList.contains('show')) new bootstrap.Collapse(nb).hide();
 }
 
 // --- MICROPHONE & TUNER LOGIC ---
