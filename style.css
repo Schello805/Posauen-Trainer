@@ -1,0 +1,514 @@
+:root {
+    --brass-color: #d4af37;
+    --brass-dark: #aa8c2c;
+    --slide-color: #e0e0e0;
+    --bg-dark: #212529;
+    --bg-light: #f8f9fa;
+}
+
+body {
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* --- NOTENSYSTEM --- */
+.staff-container {
+    width: 100%;
+    height: 150px;
+    background: #fff;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+    position: relative;
+    overflow: hidden;
+    border: 4px solid transparent;
+    transition: all 0.3s;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.05);
+}
+
+.staff-container.correct {
+    border-color: #198754;
+}
+
+.staff-container.wrong {
+    border-color: #dc3545;
+}
+
+[data-bs-theme="dark"] .staff-container {
+    background: #2b3035;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+[data-bs-theme="dark"] .staff-container svg path,
+[data-bs-theme="dark"] .staff-container svg rect,
+[data-bs-theme="dark"] .staff-container svg text {
+    fill: #e0e0e0 !important;
+    stroke: #e0e0e0 !important;
+}
+
+/* Mini Noten in Tabelle */
+[data-bs-theme="dark"] .mini-staff svg path,
+[data-bs-theme="dark"] .mini-staff svg rect,
+[data-bs-theme="dark"] .mini-staff svg text {
+    fill: #000 !important;
+    stroke: #000 !important;
+}
+
+.mini-staff {
+    background: white;
+    border-radius: 4px;
+    display: inline-block;
+    padding: 2px;
+}
+
+.grayscale-staff {
+    filter: grayscale(100%) opacity(0.6);
+}
+
+.note-name-hint {
+    font-size: 1.3rem;
+    color: var(--brass-color);
+    font-weight: bold;
+    margin-top: 5px;
+    min-height: 1.5em;
+    text-align: center;
+}
+
+/* --- VISUALISIERUNG WRAPPER --- */
+.trombone-visualizer-container {
+    position: relative;
+    margin: 20px 0;
+    padding-bottom: 30px;
+    height: 160px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.viz-wrapper {
+    position: relative;
+    width: 700px;
+    height: 140px;
+    max-width: 100%;
+}
+
+.trombone-visualizer {
+    position: relative;
+    height: 140px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+    border: 1px solid rgba(128, 128, 128, 0.2);
+    width: 100%;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+[data-bs-theme="dark"] .trombone-visualizer {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* POSAUNEN GRAFIK */
+.fixed-tubing {
+    position: absolute;
+    left: 10px;
+    top: 30px;
+    width: 90px;
+    height: 60px;
+    background: radial-gradient(circle at 10% 50%, #aa8c2c 0%, var(--brass-color) 40%, #ffeebb 100%);
+    clip-path: polygon(0% 0%, 100% 20%, 100% 80%, 0% 100%);
+    z-index: 2;
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.fixed-tubing::before {
+    content: '';
+    position: absolute;
+    top: 10%;
+    left: 10%;
+    width: 80%;
+    height: 80%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    border-radius: 50%;
+}
+
+/* Animation Class for Sound */
+.fixed-tubing.playing {
+    animation: shake 0.1s ease-in-out infinite;
+}
+
+.fixed-tubing.playing::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    /* Approximate bell shape */
+    border: 4px solid rgba(212, 175, 55, 0.6);
+    opacity: 0;
+    z-index: -1;
+    animation: soundwave 0.6s ease-out infinite;
+}
+
+@keyframes shake {
+    0% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+
+    25% {
+        transform: translate(-1px, 1px) rotate(-1deg);
+    }
+
+    50% {
+        transform: translate(1px, -1px) rotate(1deg);
+    }
+
+    75% {
+        transform: translate(-1px, -1px) rotate(0deg);
+    }
+
+    100% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+}
+
+@keyframes soundwave {
+    0% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: scale(2.5);
+        opacity: 0;
+    }
+}
+
+.outer-slide {
+    position: absolute;
+    left: 95px;
+    top: 35px;
+    height: 50px;
+    width: 300px;
+    border: 6px solid var(--brass-color);
+    border-left: none;
+    border-radius: 0 10px 10px 0;
+    transition: transform 0.05s linear;
+    z-index: 1;
+    background: transparent;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.slide-handle {
+    position: absolute;
+    right: 15px;
+    top: -15px;
+    bottom: -15px;
+    width: 12px;
+    background: linear-gradient(to right, var(--brass-color), #fff, var(--brass-color));
+    border-radius: 4px;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.slide-handle-icon {
+    background: radial-gradient(circle at 30% 30%, #ffd700, #b8860b);
+    color: #fff;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: transform 0.1s, box-shadow 0.1s;
+    cursor: grab;
+}
+
+.inner-slide-track {
+    position: absolute;
+    left: 95px;
+    top: 48px;
+    height: 24px;
+    width: 550px;
+    background: linear-gradient(to bottom, #999, #eee 40%, #ccc);
+    z-index: 0;
+    border-radius: 0 5px 5px 0;
+}
+
+/* INPUT SLIDER */
+input[type=range] {
+    position: absolute;
+    top: 0;
+    left: 360px;
+    width: 266px;
+    height: 140px;
+    opacity: 0;
+    z-index: 20;
+    cursor: grab;
+    margin: 0;
+    touch-action: none;
+}
+
+input[type=range]:active {
+    cursor: grabbing;
+}
+
+input[type=range]:hover+.trombone-visualizer .outer-slide .slide-handle-icon,
+input[type=range]:active+.trombone-visualizer .outer-slide .slide-handle-icon {
+    background: #0b5ed7;
+    transform: translateX(-50%) scale(1.2);
+    box-shadow: 0 0 15px rgba(13, 110, 253, 0.8);
+}
+
+.pos-marker {
+    position: absolute;
+    top: 75px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform: translateX(-50%);
+    opacity: 0.5;
+    transition: opacity 0.2s;
+    cursor: pointer;
+    z-index: 25;
+    padding: 10px;
+}
+
+.pos-marker:hover {
+    opacity: 1;
+    color: var(--brass-color);
+    font-weight: bold;
+}
+
+.pos-marker::before {
+    content: '';
+    display: block;
+    width: 2px;
+    height: 15px;
+    background-color: currentColor;
+    margin-bottom: 4px;
+}
+
+.pos-marker.active-marker {
+    opacity: 1;
+    color: var(--brass-color);
+    transform: translateX(-50%) scale(1.2);
+    z-index: 5;
+}
+
+/* --- BUTTONS --- */
+.pos-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    font-weight: bold;
+    margin: 0 5px;
+    transition: transform 0.2s;
+}
+
+.pos-btn:active {
+    transform: scale(0.9);
+}
+
+.pos-btn.active-pos {
+    background-color: var(--brass-color);
+    color: #000;
+    border-color: var(--brass-color);
+    box-shadow: 0 0 15px var(--brass-color);
+}
+
+/* Interactive Note Chips */
+.note-chip {
+    border: 2px solid var(--brass-color);
+    color: var(--bs-body-color);
+    background: transparent;
+    border-radius: 20px;
+    padding: 5px 15px;
+    margin: 0 5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.note-chip:hover {
+    background: rgba(212, 175, 55, 0.1);
+}
+
+.note-chip.active-note {
+    background: var(--brass-color);
+    color: #000;
+    font-weight: bold;
+    box-shadow: 0 0 10px var(--brass-color);
+}
+
+.note-chip.fallback-note {
+    border-color: #6c757d;
+    opacity: 0.8;
+}
+
+@media (max-width: 768px) {
+    .trombone-visualizer-container {
+        display: none !important;
+    }
+
+    .pos-btn {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+        margin: 5px;
+    }
+
+    .mobile-controls-container {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        /* 4 buttons per row */
+        gap: 10px;
+        margin-top: 20px;
+        padding: 0 10px;
+    }
+
+    .pos-btn {
+        width: 100%;
+        /* Fill grid cell */
+        height: 60px;
+        font-size: 1.5rem;
+        margin: 0;
+        /* Remove margin as we use gap */
+        border-radius: 15px;
+        /* Softer corners for touch */
+    }
+
+    /* Last 3 buttons centered in second row */
+    .mobile-controls-container button:nth-child(5) {
+        grid-column: 1 / span 1;
+        margin-left: auto;
+    }
+
+    /* Reset if needed, but grid handles it well usually */
+    /* Actually, let's just use flex for better centering of the last row */
+    .mobile-controls-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .pos-btn {
+        width: 60px;
+        height: 60px;
+        flex: 0 0 auto;
+    }
+}
+
+.feedback-container {
+    min-height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.feedback-badge {
+    font-size: 1.2rem;
+    padding: 10px 20px;
+    border-radius: 20px;
+    display: none;
+    animation: popIn 0.3s ease-out;
+}
+
+.stat-box {
+    background: rgba(128, 128, 128, 0.1);
+    border-radius: 8px;
+    padding: 5px 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: bold;
+}
+
+.streak-fire {
+    color: #ff6b6b;
+    animation: burn 0.5s infinite alternate;
+    display: none;
+}
+
+.streak-active {
+    display: inline-block;
+}
+
+@keyframes burn {
+    from {
+        text-shadow: 0 0 2px orangered;
+        transform: scale(1);
+    }
+
+    to {
+        text-shadow: 0 0 10px yellow;
+        transform: scale(1.2);
+    }
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.view-section {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.d-none {
+    display: none !important;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.level-selector {
+    background: rgba(128, 128, 128, 0.1);
+    padding: 10px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    display: inline-block;
+}
+
+.table-ref td,
+.table-ref th {
+    vertical-align: middle;
+    text-align: center;
+}
+
+.table-ref th {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+[data-bs-theme="dark"] .table-ref th {
+    background-color: rgba(255, 255, 255, 0.1);
+}
