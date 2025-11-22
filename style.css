@@ -607,6 +607,19 @@ input[type=range]:active+.trombone-visualizer .outer-slide .slide-handle-icon {
     transition: opacity 0.3s ease;
 }
 
+/* Dark Mode Fixes for Theory Quiz */
+[data-bs-theme="dark"] .theory-opt-btn.btn-outline-dark {
+    color: #f8f9fa;
+    border-color: #f8f9fa;
+}
+
+[data-bs-theme="dark"] .theory-opt-btn.btn-outline-dark:hover,
+[data-bs-theme="dark"] .theory-opt-btn.btn-outline-dark:active {
+    color: #000;
+    background-color: #f8f9fa;
+    border-color: #f8f9fa;
+}
+
 /* --- MOBILE OPTIMIZATIONS --- */
 @media (max-width: 576px) {
     .container-fluid.sticky-top {
