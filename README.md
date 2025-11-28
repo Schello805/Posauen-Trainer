@@ -11,6 +11,7 @@ Ein interaktiver Web-Trainer für Posaunisten, um Zugpositionen, Notenlesen und 
 *   **Noten lernen:** Dir wird eine Note angezeigt, und du musst die korrekte Zugposition auf der virtuellen Posaune finden.
 *   **Gamification:** Sammle XP, steige Level auf und halte deine "Daily Streak" (Tage in Folge).
     *   **Level 1 (Anfänger):** B-Dur Tonleiter (Positionen 1, 3, 4, 6).
+        *   *Aufstieg:* Du musst **20x** im Quiz und **10x** in der Theorie richtig liegen, um Level 2 freizuschalten.
     *   **Level 2 (Fortgeschritten):** Erweiterter Tonumfang.
     *   **Level 3 (Profi):** Chromatisch über alle Lagen.
 *   **Visuelles Feedback:** Konfetti bei Erfolg, automatische Korrektur bei Fehlern.
