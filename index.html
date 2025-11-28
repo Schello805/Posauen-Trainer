@@ -22,7 +22,7 @@
     <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="stylesheet" href="style.css?v=4">
 </head>
 
 <body>
@@ -34,7 +34,7 @@
                 <a href="javascript:void(0)" onclick="switchMainView('trainer')" class="text-decoration-none">
                     <div class="fw-bold text-warning d-flex align-items-center gap-2">
                         <img src="posaune.png" alt="Logo" height="32" class="d-inline-block align-text-top">
-                        Posaune Start
+                        <span class="navbar-brand-text">Posaune Start</span>
                     </div>
                 </a>
 
@@ -43,6 +43,10 @@
                     <i class="bi bi-trophy-fill text-warning"></i>
                     <span>Lvl <span id="displayLevel">1</span></span>
                 </div>
+
+                <!-- Level Requirements Display -->
+                <div id="levelRequirementsContainer"
+                    class="d-none d-md-flex align-items-center ms-2 small fw-bold text-warning"></div>
             </div>
 
             <!-- XP Bar & Streak -->
@@ -99,10 +103,22 @@
                                     data-bs-target="#quizSettings" aria-expanded="false">
                                     <i class="bi bi-gear-fill"></i> Einstellungen
                                 </button>
-                                <button class="btn btn-sm btn-outline-secondary rounded-circle d-none d-md-inline-block"
+                                <button class="btn btn-sm btn-outline-secondary rounded-circle"
                                     onclick="switchMainView('instructions')" title="Anleitung">
                                     <i class="bi bi-question-lg"></i>
                                 </button>
+                            </div>
+
+                            <!-- Level 1 Goals Alert -->
+                            <div id="level1GoalCard" class="alert alert-warning text-start py-2 mb-3 d-none shadow-sm">
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <i class="bi bi-flag-fill text-danger"></i>
+                                    <strong class="small">Aufgaben für Level 2:</strong>
+                                </div>
+                                <div class="d-flex justify-content-around small">
+                                    <span id="goalQuizDisplay"><i class="bi bi-controller"></i> Quiz: 0/20</span>
+                                    <span id="goalTheoryDisplay"><i class="bi bi-lightbulb"></i> Theorie: 0/10</span>
+                                </div>
                             </div>
 
                             <!-- Collapsible Settings -->
@@ -439,6 +455,20 @@
                                     </ul>
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- Level System Info -->
+                        <div class="mt-4 p-3 border rounded bg-body-tertiary">
+                            <h6 class="text-info fw-bold"><i class="bi bi-trophy"></i> Level-System & Aufstieg</h6>
+                            <p class="small mb-2">Um ein echter Posaunen-Meister zu werden, musst du dich beweisen!</p>
+                            <ul class="small ps-3 mb-0">
+                                <li><strong>Level 1 (Anfänger):</strong> Du musst <strong>20x</strong> im Quiz die
+                                    richtige Position treffen und <strong>10x</strong> eine Theorie-Frage richtig
+                                    beantworten, um aufzusteigen.</li>
+                                <li><strong>XP (Erfahrungspunkte):</strong> Sammle Punkte durch Üben. Wenn der Balken
+                                    voll ist UND du die Aufgaben erledigt hast, steigst du auf.</li>
+                                <li><strong>Höhere Level:</strong> Schalten neue Töne und schwierigere Fragen frei.</li>
+                            </ul>
                         </div>
                     </div>
                 </div>

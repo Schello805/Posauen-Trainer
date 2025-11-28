@@ -21,6 +21,11 @@ let userProgress = {
         5: { correct: 0, total: 0 },
         6: { correct: 0, total: 0 },
         7: { correct: 0, total: 0 }
+    },
+    // Level Requirements Tracking
+    levelRequirements: {
+        quizCorrect: 0,
+        theoryCorrect: 0
     }
 };
 
@@ -169,6 +174,13 @@ function checkTheoryAnswer(selectedIdx, btnElement, correctIdx) {
         btnElement.classList.add('btn-success');
         btnElement.innerHTML = `<i class="bi bi-check-circle-fill me-2"></i> ${btnElement.innerText}`;
         theoryCorrectCount++;
+
+        // Level 1 Requirement Tracking
+        if (userProgress.level === 1) {
+            userProgress.levelRequirements.theoryCorrect++;
+            saveProgress(); // Save immediately
+        }
+
         addXP(5);
         confetti({ particleCount: 30, spread: 50, origin: { y: 0.6 } });
     } else {
@@ -262,6 +274,9 @@ function initGamification() {
                 7: { correct: 0, total: 0 }
             };
         }
+        if (!userProgress.levelRequirements) {
+            userProgress.levelRequirements = { quizCorrect: 0, theoryCorrect: 0 };
+        }
     } else {
         // Migration old highscore
         const oldHigh = localStorage.getItem('posauneHighScore');
@@ -308,9 +323,32 @@ function addXP(amount) {
 }
 
 function levelUp() {
+    // Check Requirements for Level 1 -> 2
+    if (userProgress.level === 1) {
+        const reqQuiz = 20;
+        const reqTheory = 10;
+
+        if (userProgress.levelRequirements.quizCorrect < reqQuiz || userProgress.levelRequirements.theoryCorrect < reqTheory) {
+            // Requirements not met yet. Accumulate XP but don't level up.
+            // Maybe cap XP? For now just let it overflow or stay at max.
+            // Actually, let's keep XP at max-1 to show they are ready but need to finish tasks.
+            if (userProgress.xp >= userProgress.xpToNext) {
+                userProgress.xp = userProgress.xpToNext - 1;
+            }
+            saveProgress();
+
+            // Show a toast or small alert? 
+            // Better: updateUIStats handles the display of requirements.
+            return;
+        }
+    }
+
     userProgress.level++;
     userProgress.xp -= userProgress.xpToNext;
     userProgress.xpToNext = Math.floor(userProgress.xpToNext * 1.5);
+
+    // Reset requirements for next level (if we add more later)
+    userProgress.levelRequirements = { quizCorrect: 0, theoryCorrect: 0 };
 
     // Visual Feedback
     alert(`🎉 LEVEL UP! Du bist jetzt Level ${userProgress.level}! Neue Töne freigeschaltet.`);
@@ -329,6 +367,50 @@ function updateUIStats() {
     if (xpBar) {
         const pct = (userProgress.xp / userProgress.xpToNext) * 100;
         xpBar.style.width = `${pct}%`;
+    }
+
+    // Level Requirements Display (Only for Level 1 for now)
+    const reqDisplay = document.getElementById('levelRequirementsContainer');
+    if (userProgress.level === 1) {
+        if (reqDisplay) {
+            const q = userProgress.levelRequirements.quizCorrect;
+            const t = userProgress.levelRequirements.theoryCorrect;
+            const qReq = 20;
+            const tReq = 10;
+
+            let html = "";
+            // Shorten text for mobile if needed, or just use icons
+            if (q < qReq) html += `<span class="me-2" title="Quiz Richtige"><i class="bi bi-controller"></i> ${q}/${qReq}</span>`;
+            else html += `<span class="me-2 text-success" title="Quiz Fertig"><i class="bi bi-check-circle-fill"></i> Quiz</span>`;
+
+            if (t < tReq) html += `<span title="Theorie Richtige"><i class="bi bi-lightbulb"></i> ${t}/${tReq}</span>`;
+            else html += `<span class="text-success" title="Theorie Fertig"><i class="bi bi-check-circle-fill"></i> Theorie</span>`;
+
+            reqDisplay.innerHTML = html;
+            reqDisplay.classList.remove('d-none');
+            reqDisplay.classList.add('d-flex');
+
+            // Update Goal Card in Quiz Tab
+            const goalCard = document.getElementById('level1GoalCard');
+            if (goalCard) {
+                goalCard.classList.remove('d-none');
+                document.getElementById('goalQuizDisplay').innerHTML = (q < qReq)
+                    ? `<i class="bi bi-controller"></i> Quiz: <strong>${q}/${qReq}</strong>`
+                    : `<span class="text-success"><i class="bi bi-check-circle-fill"></i> Quiz: Fertig!</span>`;
+
+                document.getElementById('goalTheoryDisplay').innerHTML = (t < tReq)
+                    ? `<i class="bi bi-lightbulb"></i> Theorie: <strong>${t}/${tReq}</strong>`
+                    : `<span class="text-success"><i class="bi bi-check-circle-fill"></i> Theorie: Fertig!</span>`;
+            }
+        }
+    } else {
+        if (reqDisplay) {
+            reqDisplay.classList.add('d-none');
+            reqDisplay.classList.remove('d-flex');
+        }
+        // Hide Goal Card if not Level 1
+        const goalCard = document.getElementById('level1GoalCard');
+        if (goalCard) goalCard.classList.add('d-none');
     }
 }
 
@@ -734,6 +816,11 @@ function checkQuizAnswer() {
         userProgress.todayCorrect++;
         userProgress.totalCorrect++;
         userProgress.positionStats[currentQuizQuestion.correct].correct++;
+
+        // Level 1 Requirement Tracking
+        if (userProgress.level === 1) {
+            userProgress.levelRequirements.quizCorrect++;
+        }
 
         addXP(10 + (userProgress.streak > 0 ? 5 : 0));
         streak++;
