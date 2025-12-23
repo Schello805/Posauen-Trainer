@@ -1,7 +1,14 @@
 
-import { userProgress, appState, getCurrentUserProgress } from './state.js';
+import { userProgress, appState, getCurrentUserProgress, subscribeStateChange } from './state.js';
 import { getInstrumentData } from './data.js';
 import { renderNoteThumbnail } from './score-renderer.js';
+
+// Auto-subscribe to state changes
+subscribeStateChange(() => {
+    updateUIStats();
+    // We could also re-generate the reference table if level changes, but that might be heavy.
+    // For now, stats are the main dynamic thing.
+});
 
 export function updateUIStats() {
     const stats = getCurrentUserProgress();
@@ -198,7 +205,7 @@ export function generateStats() {
     }
 }
 
-export function shareProgressReport() {
+export function shareProgressReport(mode = 'native') {
     const stats = getCurrentUserProgress();
     const accuracy = stats.totalQuestions > 0
         ? Math.round((stats.totalCorrect / stats.totalQuestions) * 100)
@@ -209,6 +216,18 @@ export function shareProgressReport() {
     // Instrument Name for sharing
     const inst = getInstrumentData(appState.selectedInstrument || 'trombone');
     
+    // Find weakest notes (highest weight)
+    let weakNotes = [];
+    if (stats.noteStats) {
+        weakNotes = Object.entries(stats.noteStats)
+            .sort(([, a], [, b]) => b.weight - a.weight) // Descending weight
+            .slice(0, 3) // Top 3
+            .filter(([, data]) => data.weight > 12) // Only if significantly hard (base is 10)
+            .map(([key]) => {
+                return key.replace('/', '');
+            });
+    }
+
     let text = `🎺 Blechblastrainer (${inst.name}) Bericht (${date})\n\n`;
     text += `⭐ Level: ${stats.level}\n`;
     text += `🔥 Streak: ${userProgress.streak} Tage\n`;
@@ -216,7 +235,18 @@ export function shareProgressReport() {
     text += `📊 Heute:\n`;
     text += `✅ Richtig: ${stats.todayCorrect}/${stats.todayTotal}\n`;
     text += `🎯 Genauigkeit (Gesamt): ${accuracy}%\n\n`;
+    
+    if (weakNotes.length > 0) {
+        text += `⚠️ Übe diese Töne: ${weakNotes.join(', ')}\n\n`;
+    }
+
     text += `Weiter so! 🎶`;
+
+    if (mode === 'whatsapp') {
+        const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+        window.open(url, '_blank');
+        return;
+    }
 
     if (navigator.share) {
         navigator.share({

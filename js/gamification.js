@@ -1,6 +1,5 @@
 
-import { userProgress, getCurrentUserProgress } from './state.js';
-import { updateUIStats } from './ui.js';
+import { userProgress, getCurrentUserProgress, notifyStateChange } from './state.js';
 
 // --- GAMIFICATION LOGIC ---
 
@@ -48,12 +47,12 @@ export function initGamification() {
     }
 
     checkDailyStreak();
-    updateUIStats();
+    notifyStateChange(); // Trigger UI Update
 }
 
 export function saveProgress() {
     localStorage.setItem('posauneProgress', JSON.stringify(userProgress));
-    updateUIStats();
+    notifyStateChange(); // Notify listeners (UI)
 }
 
 export function checkDailyStreak() {

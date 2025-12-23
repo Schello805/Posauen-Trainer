@@ -17,39 +17,9 @@ import {
     toggleValve
 } from './app-core.js';
 import { startMicrophone, stopMicrophone } from './audio.js';
-import { generateReferenceTable, generateStats, updateInstructionsUI } from './ui.js';
+import { generateReferenceTable, generateStats, updateInstructionsUI, shareProgressReport } from './ui.js';
 import { renderVexFlowNotes } from './score-renderer.js';
 import { appState } from './state.js';
-
-// --- EXPOSE GLOBAL FUNCTIONS (Early Binding) ---
-console.log("Main.js: Binding global functions...");
-
-// Bind immediately to ensure availability
-window.switchMainView = switchMainView;
-window.resetToStartScreen = resetToStartScreen;
-window.selectInstrument = selectInstrument;
-window.toggleDarkMode = toggleDarkMode;
-window.toggleMicMode = toggleMicMode;
-
-window.handleQuizInput = handleQuizInput;
-window.snapQuizInput = snapQuizInput;
-window.checkQuizAnswer = checkQuizAnswer;
-window.nextQuestion = nextQuestion;
-window.playQuizHint = playQuizHint;
-window.setDifficultyOverride = setDifficultyOverride;
-
-window.handleLearnInput = handleLearnInput;
-window.handleLearnRelease = handleLearnRelease;
-window.setLearnPosition = setLearnPosition;
-window.toggleValve = toggleValve;
-
-window.resetTheoryQuiz = resetTheoryQuiz;
-
-if (typeof window.toggleValve === 'function') {
-    console.log("toggleValve is successfully bound to window.");
-} else {
-    console.error("CRITICAL: toggleValve failed to bind!");
-}
 
 // --- MAIN UI FUNCTIONS ---
 
@@ -88,19 +58,49 @@ function selectInstrument(inst) {
     initTheoryQuiz(); // Reload theory questions for new instrument
     setLearnPosition(1);
     generateReferenceTable(); // Update reference table for instrument
+
+    // Show Stats Button
+    const btnStats = document.getElementById('btnHeaderStats');
+    if (btnStats) btnStats.classList.remove('d-none');
 }
 
 function resetToStartScreen() {
-    document.getElementById('view-trainer').classList.add('d-none');
-    document.getElementById('view-instructions').classList.add('d-none');
-    document.getElementById('view-start').classList.remove('d-none');
+    const t = document.getElementById('view-trainer');
+    const i = document.getElementById('view-instructions');
+    const st = document.getElementById('view-stats');
+    const s = document.getElementById('view-start');
+
+    if (t) t.classList.add('d-none');
+    if (i) i.classList.add('d-none');
+    if (st) st.classList.add('d-none');
+    if (s) s.classList.remove('d-none');
+    
     appState.selectedInstrument = null;
+
+    // Hide Stats Button
+    const btnStats = document.getElementById('btnHeaderStats');
+    if (btnStats) btnStats.classList.add('d-none');
 }
 
 function switchMainView(v) {
+    console.log(`switchMainView called with: ${v}`);
     const t = document.getElementById('view-trainer');
     const i = document.getElementById('view-instructions');
     const s = document.getElementById('view-start');
+    const st = document.getElementById('view-stats');
+
+    // Hide all first (Safe check)
+    if (t) t.classList.add('d-none');
+    else console.warn("view-trainer not found");
+    
+    if (i) i.classList.add('d-none');
+    else console.warn("view-instructions not found");
+    
+    if (s) s.classList.add('d-none');
+    else console.warn("view-start not found");
+    
+    if (st) st.classList.add('d-none');
+    else console.warn("view-stats not found");
 
     if (v === 'trainer') {
         // Security check: If no instrument selected, redirect to start
@@ -109,26 +109,25 @@ function switchMainView(v) {
             resetToStartScreen();
             return;
         }
-
-        s.classList.add('d-none');
-        i.classList.add('d-none');
-        t.classList.remove('d-none');
+        if (t) t.classList.remove('d-none');
 
         if (appState.currentQuizQuestion) {
             // Re-render notes with correct clef if coming back
             const inst = appState.selectedInstrument === 'trumpet' ? 'treble' : 'bass'; 
-            // Trigger a re-render if needed via handleQuizInput logic which refreshes visuals
-            // accessing the slider value to trigger update
             const slider = document.getElementById('quizSlideRange');
             if (slider) handleQuizInput(slider.value);
         }
+    } else if (v === 'stats') {
+        if (st) st.classList.remove('d-none');
+        try {
+            generateStats();
+        } catch (e) {
+            console.error("Error generating stats:", e);
+        }
     } else {
         // Instructions view
-        s.classList.add('d-none');
-        t.classList.add('d-none');
-        i.classList.remove('d-none');
+        if (i) i.classList.remove('d-none');
         generateReferenceTable();
-        generateStats();
         updateInstructionsUI();
     }
 
@@ -213,32 +212,178 @@ function updateTunerNeedle(cents) {
     else needle.style.background = "#dc3545";
 }
 
+// --- EVENT LISTENERS ---
+
+function setupEventListeners() {
+    console.log("Setting up event listeners...");
+
+    // 1. Header & Navigation
+    const headerBrand = document.getElementById('headerBrandLink');
+    if (headerBrand) headerBrand.addEventListener('click', () => switchMainView('trainer'));
+
+    const btnDarkMode = document.getElementById('darkModeToggleBtn');
+    if (btnDarkMode) btnDarkMode.addEventListener('click', toggleDarkMode);
+
+    const btnHeaderHelp = document.getElementById('btnHeaderHelp');
+    if (btnHeaderHelp) btnHeaderHelp.addEventListener('click', () => switchMainView('instructions'));
+
+    const btnHeaderStats = document.getElementById('btnHeaderStats');
+    if (btnHeaderStats) {
+        btnHeaderStats.addEventListener('click', () => {
+            console.log("Stats button clicked");
+            try {
+                switchMainView('stats');
+            } catch (e) {
+                console.error("Error switching to stats:", e);
+            }
+        });
+    } else {
+        console.error("btnHeaderStats not found in DOM");
+    }
+
+    const btnHeaderInstrument = document.getElementById('btnHeaderInstrument');
+    if (btnHeaderInstrument) btnHeaderInstrument.addEventListener('click', resetToStartScreen);
+
+    const btnBackTrainer1 = document.getElementById('btnBackToTrainer1');
+    if (btnBackTrainer1) btnBackTrainer1.addEventListener('click', () => switchMainView('trainer'));
+
+    const btnBackTrainer2 = document.getElementById('btnBackToTrainer2');
+    if (btnBackTrainer2) btnBackTrainer2.addEventListener('click', () => switchMainView('trainer'));
+
+    const btnBackStats = document.getElementById('btnBackToTrainerStats');
+    if (btnBackStats) btnBackStats.addEventListener('click', () => switchMainView('trainer'));
+
+    // Privacy Modal
+    const btnPrivacyAccept = document.getElementById('btnPrivacyAccept');
+    if (btnPrivacyAccept) {
+        btnPrivacyAccept.addEventListener('click', () => {
+            localStorage.setItem('posaunePrivacyAccepted', 'true');
+            const modal = bootstrap.Modal.getInstance(document.getElementById('privacyModal'));
+            if (modal) modal.hide();
+        });
+    }
+
+    // 2. Start Screen
+    const cardTrombone = document.getElementById('cardStartTrombone');
+    if (cardTrombone) cardTrombone.addEventListener('click', () => selectInstrument('trombone'));
+
+    const cardTrumpet = document.getElementById('cardStartTrumpet');
+    if (cardTrumpet) cardTrumpet.addEventListener('click', () => selectInstrument('trumpet'));
+
+    // 3. Quiz Controls
+    const diffSelectors = document.querySelectorAll('.diff-selector');
+    diffSelectors.forEach(radio => {
+        radio.addEventListener('change', (e) => setDifficultyOverride(parseInt(e.target.value)));
+    });
+
+    const micSwitch = document.getElementById('micModeSwitch');
+    if (micSwitch) micSwitch.addEventListener('change', toggleMicMode);
+
+    const btnQuizHint = document.getElementById('btnQuizHint');
+    if (btnQuizHint) btnQuizHint.addEventListener('click', playQuizHint);
+
+    const quizSlider = document.getElementById('quizSlideRange');
+    if (quizSlider) {
+        quizSlider.addEventListener('input', (e) => handleQuizInput(e.target.value));
+        quizSlider.addEventListener('change', (e) => snapQuizInput(e.target.value));
+    }
+
+    // Quiz Visual Markers
+    document.querySelectorAll('.quiz-marker').forEach(marker => {
+        marker.addEventListener('click', () => {
+            const pos = parseInt(marker.getAttribute('data-pos'));
+            snapQuizInput(pos);
+        });
+    });
+
+    // Quiz Valves
+    document.querySelectorAll('.quiz-valve').forEach(valve => {
+        valve.addEventListener('click', () => {
+            const v = parseInt(valve.getAttribute('data-valve'));
+            toggleValve(v, 'quiz');
+        });
+    });
+
+    // Quiz Mobile Buttons
+    document.querySelectorAll('.quiz-mobile-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const pos = parseInt(btn.getAttribute('data-pos'));
+            snapQuizInput(pos);
+        });
+    });
+
+    const btnCheck = document.getElementById('checkAnswerBtn');
+    if (btnCheck) btnCheck.addEventListener('click', checkQuizAnswer);
+
+    const btnNext = document.getElementById('nextBtn');
+    if (btnNext) btnNext.addEventListener('click', nextQuestion);
+
+    // 4. Learn Controls
+    const learnSlider = document.getElementById('learnSlideRange');
+    if (learnSlider) {
+        learnSlider.addEventListener('input', (e) => handleLearnInput(e.target.value));
+        learnSlider.addEventListener('change', (e) => handleLearnRelease(e.target.value));
+    }
+
+    // Learn Visual Markers
+    document.querySelectorAll('.learn-marker').forEach(marker => {
+        marker.addEventListener('click', () => {
+            const pos = parseInt(marker.getAttribute('data-pos'));
+            handleLearnRelease(pos);
+        });
+    });
+
+    // Learn Valves
+    document.querySelectorAll('.learn-valve').forEach(valve => {
+        valve.addEventListener('click', () => {
+            const v = parseInt(valve.getAttribute('data-valve'));
+            toggleValve(v, 'learn');
+        });
+    });
+
+    // Learn Mobile Buttons
+    document.querySelectorAll('.learn-mobile-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const pos = parseInt(btn.getAttribute('data-pos'));
+            setLearnPosition(pos);
+        });
+    });
+
+    // 5. Theory & Footer
+    const btnResetTheory = document.getElementById('btnResetTheory');
+    if (btnResetTheory) btnResetTheory.addEventListener('click', resetTheoryQuiz);
+
+    const btnShare = document.getElementById('btnShareProgress');
+    if (btnShare) btnShare.addEventListener('click', () => shareProgressReport('native'));
+
+    const btnShareWA = document.getElementById('btnShareWhatsApp');
+    if (btnShareWA) btnShareWA.addEventListener('click', () => shareProgressReport('whatsapp'));
+}
+
 // --- INITIALIZATION ---
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("App initializing... resetting to start screen.");
-    resetToStartScreen(); // Ensure consistent initial state (Start Screen visible, Trainer hidden)
+    console.log("App initializing...");
+    setupEventListeners();
     
+    // Initial State
+    resetToStartScreen(); 
     initGamification();
-    initQuiz(); // Starts active
+    initQuiz();
     setLearnPosition(1);
     initTheoryQuiz();
+    generateReferenceTable();
 
-    // Tab Change Listener to resolve VexFlow rendering issues on hidden tabs
+    // Tab Change Listener
     const learnTabBtn = document.querySelector('button[data-bs-target="#pills-learn"]');
     if (learnTabBtn) {
         learnTabBtn.addEventListener('shown.bs.tab', () => {
             console.log("Learn Tab Shown - Forcing Re-render");
-            // Force re-render logic in trainer.js
             appState.lastLearnRenderedNote = null;
             const slider = document.getElementById('learnSlideRange');
-            if (slider) {
-                // Determine if we need to render empty or note based on slider
-                handleLearnInput(slider.value);
-            }
+            if (slider) handleLearnInput(slider.value);
         });
     }
-    // Default to Quiz view
 
     // Dark Mode Check
     const btn = document.getElementById('darkModeToggleBtn');
@@ -251,32 +396,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    generateReferenceTable();
+    // Check Privacy Acceptance
+    const accepted = localStorage.getItem('posaunePrivacyAccepted_v2');
+
+    if (!accepted) {
+        const modalEl = document.getElementById('privacyModal');
+        if (modalEl) {
+            try {
+                const modal = new bootstrap.Modal(modalEl);
+                modal.show();
+            } catch (e) {
+                console.error("Bootstrap modal error:", e);
+            }
+        }
+    }
 });
-
-// --- EXPOSE GLOBAL FUNCTIONS FOR HTML HANDLERS ---
-console.log("Main.js: Exposing functions to window");
-console.log("toggleValve type:", typeof toggleValve);
-
-window.switchMainView = switchMainView;
-window.resetToStartScreen = resetToStartScreen;
-window.selectInstrument = selectInstrument;
-window.toggleDarkMode = toggleDarkMode;
-window.toggleMicMode = toggleMicMode;
-
-window.handleQuizInput = handleQuizInput;
-window.snapQuizInput = snapQuizInput;
-window.checkQuizAnswer = checkQuizAnswer;
-window.nextQuestion = nextQuestion;
-window.playQuizHint = playQuizHint;
-window.setDifficultyOverride = setDifficultyOverride;
-
-window.handleLearnInput = handleLearnInput;
-window.handleLearnRelease = handleLearnRelease;
-window.setLearnPosition = setLearnPosition;
-window.toggleValve = toggleValve;
-
-window.resetTheoryQuiz = resetTheoryQuiz;
 
 // Keyboard Controls
 document.addEventListener('keydown', (e) => {

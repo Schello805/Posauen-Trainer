@@ -4,7 +4,6 @@ import { positionMap, getInstrumentData } from './data.js';
 import { playBrassTone, playSingleNote } from './audio.js';
 import { renderVexFlowNotes, renderEmptyStave } from './score-renderer.js';
 import { saveProgress, addXP } from './gamification.js';
-import { updateUIStats } from './ui.js';
 
 console.log("Trainer Module v15 Loaded");
 
@@ -175,14 +174,14 @@ export function checkQuizAnswer() {
         // BUT appState.streak seems to be "session streak" for XP bonus.
         appState.streak++;
 
-        fb.className = "feedback-badge bg-success text-white";
+        fb.className = "feedback-badge bg-success text-white juice-pop";
         fb.innerHTML = `<strong>Richtig!</strong> <i class="bi bi-music-note-beamed"></i> (+10 XP) | Heute: ${stats.todayCorrect}/${stats.todayTotal}`;
-        staff.classList.add('correct');
+        staff.classList.add('correct', 'juice-success');
         playBrassTone(appState.currentQuizQuestion.freq);
         if (window.confetti) window.confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
 
         if ('vibrate' in navigator) {
-            navigator.vibrate(200);
+            navigator.vibrate([50, 30, 50]);
         }
     } else {
         // Wrong
@@ -191,14 +190,18 @@ export function checkQuizAnswer() {
         stats.noteStats[currentKey].wrong++;
 
         appState.streak = 0;
-        fb.className = "feedback-badge bg-danger text-white";
+        fb.className = "feedback-badge bg-danger text-white juice-shake";
         
         const inst = getInstrument();
         const correctLabel = inst.labels[appState.currentQuizQuestion.correct - 1]; // Index 0-based
         
         fb.innerHTML = `<strong>Falsch.</strong> Die richtige Position ist <strong>${correctLabel}</strong>`;
-        staff.classList.add('wrong');
+        staff.classList.add('wrong', 'juice-shake');
         playBrassTone(80); // Fail sound
+
+        if ('vibrate' in navigator) {
+            navigator.vibrate(300);
+        }
 
         setTimeout(() => {
             snapQuizInput(appState.currentQuizQuestion.correct);
@@ -206,8 +209,7 @@ export function checkQuizAnswer() {
         }, 800);
     }
 
-    updateUIStats();
-    saveProgress();
+    saveProgress(); // This triggers UI update via Observer
 
     fb.style.display = 'block';
 
@@ -419,7 +421,13 @@ function updateVisuals(prefix, pos) {
     document.querySelectorAll(`#pills-${prefix} .pos-btn`).forEach((b, index) => {
         b.classList.remove('active-pos');
         // Index is 0-based, so position is index + 1
-        if ((index + 1) === rounded && Math.abs(pos - rounded) < 0.3) b.classList.add('active-pos');
+        if ((index + 1) === rounded && Math.abs(pos - rounded) < 0.3) {
+            b.classList.add('active-pos');
+            // Remove and re-add class to trigger animation
+            b.classList.remove('juice-pop');
+            void b.offsetWidth; // Trigger reflow
+            b.classList.add('juice-pop');
+        }
     });
 }
 

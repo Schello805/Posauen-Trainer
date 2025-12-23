@@ -1,4 +1,4 @@
-const CACHE_NAME = 'posaune-trainer-v30'; // Force Fresh Start
+const CACHE_NAME = 'posaune-trainer-v40'; // Bump to v40
 const ASSETS = [
     './',
     './index.html',

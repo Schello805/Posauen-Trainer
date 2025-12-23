@@ -1,7 +1,6 @@
 import { userProgress, getCurrentUserProgress, appState } from './state.js';
 import { getInstrumentData } from './data.js';
 import { saveProgress, addXP } from './gamification.js';
-import { updateUIStats } from './ui.js';
 
 let activeTheoryQuestions = [];
 let currentTheoryIndex = 0;
@@ -123,7 +122,6 @@ function checkTheoryAnswer(selectedIdx, btnElement, correctIdx) {
         if (stats.level === 1) {
             stats.levelRequirements.theoryCorrect++;
             saveProgress();
-            updateUIStats();
         }
 
         addXP(5);

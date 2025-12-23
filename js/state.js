@@ -54,3 +54,22 @@ export function getCurrentUserProgress() {
     }
     return userProgress.instruments[inst];
 }
+
+// --- OBSERVER PATTERN ---
+const listeners = [];
+
+export function subscribeStateChange(callback) {
+    listeners.push(callback);
+}
+
+export function notifyStateChange() {
+    listeners.forEach(cb => callbackSafe(cb));
+}
+
+function callbackSafe(cb) {
+    try {
+        cb();
+    } catch (e) {
+        console.error("State listener failed:", e);
+    }
+}

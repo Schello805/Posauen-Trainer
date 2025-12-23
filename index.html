@@ -37,7 +37,7 @@
         style="display:none; position:fixed; top:0; left:0; width:100%; z-index:9999; background:rgba(255,0,0,0.9); color:white; padding:10px; font-family:monospace; font-size:12px; max-height:200px; overflow:auto;">
         <div style="display:flex; justify-content:space-between;">
             <strong>ERROR LOG:</strong>
-            <button onclick="document.getElementById('error-console').style.display='none'"
+            <button id="btnCloseErrorConsole"
                 style="border:1px solid white; background:transparent; color:white;">X</button>
         </div>
         <div id="error-content"></div>
@@ -50,6 +50,9 @@
             content.innerHTML += `<div>[${new Date().toLocaleTimeString()}] Error: ${msg} <br><small>${url}:${line}:${col}</small></div>`;
             return false;
         };
+        document.getElementById('btnCloseErrorConsole').addEventListener('click', function() {
+            document.getElementById('error-console').style.display = 'none';
+        });
         window.addEventListener('unhandledrejection', function (event) {
             const div = document.getElementById('error-console');
             const content = document.getElementById('error-content');
@@ -62,7 +65,7 @@
     <div class="container-fluid bg-body-tertiary border-bottom py-2 sticky-top shadow-sm">
         <div class="container d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-3">
-                <a href="javascript:void(0)" onclick="switchMainView('trainer')" class="text-decoration-none">
+                <a href="javascript:void(0)" id="headerBrandLink" class="text-decoration-none">
                     <div class="fw-bold text-warning d-flex align-items-center gap-2">
                         <img src="posaune.png" alt="Logo" height="32" class="d-inline-block align-text-top">
                         <span class="navbar-brand-text">Blechblastrainer</span>
@@ -99,19 +102,25 @@
 
                 <!-- Dark Mode Toggle Mini -->
                 <button class="btn btn-sm btn-outline-secondary rounded-circle ms-2" id="darkModeToggleBtn"
-                    onclick="toggleDarkMode()" title="Dunkelmodus umschalten">
+                     title="Dunkelmodus umschalten">
                     <i class="bi bi-moon-stars-fill"></i>
                 </button>
 
                 <!-- Help Button (Moved to Header) -->
-                <button class="btn btn-sm btn-outline-info rounded-circle ms-1"
-                    onclick="switchMainView('instructions')" title="Anleitung & Hilfe">
+                <button class="btn btn-sm btn-outline-info rounded-circle ms-1 d-none" id="btnHeaderStats"
+                     title="Statistiken & Teilen">
+                    <i class="bi bi-graph-up"></i>
+                </button>
+
+                <!-- Help Button (Moved to Header) -->
+                <button class="btn btn-sm btn-outline-secondary rounded-circle ms-1" id="btnHeaderHelp"
+                     title="Anleitung & Hilfe">
                     <i class="bi bi-question-lg"></i>
                 </button>
 
                 <!-- Change Instrument Button -->
-                <button class="btn btn-sm btn-outline-warning rounded-circle ms-1"
-                    onclick="resetToStartScreen()" title="Instrument wechseln">
+                <button class="btn btn-sm btn-outline-warning rounded-circle ms-1" id="btnHeaderInstrument"
+                     title="Instrument wechseln">
                     <i class="bi bi-music-note-list"></i>
                 </button>
             </div>
@@ -126,7 +135,7 @@
             
             <div class="row justify-content-center g-4">
                 <div class="col-md-5 col-lg-4">
-                    <div class="card h-100 shadow-sm hover-scale border-warning" style="cursor: pointer;" onclick="selectInstrument('trombone')">
+                    <div class="card h-100 shadow-sm hover-scale border-warning" style="cursor: pointer;" id="cardStartTrombone">
                         <div class="card-body py-5">
                             <i class="bi bi-music-note-list display-1 text-warning mb-3"></i>
                             <h2 class="card-title">Posaune</h2>
@@ -137,7 +146,7 @@
                 </div>
                 
                 <div class="col-md-5 col-lg-4">
-                    <div class="card h-100 shadow-sm hover-scale border-info" style="cursor: pointer;" onclick="selectInstrument('trumpet')">
+                    <div class="card h-100 shadow-sm hover-scale border-info" style="cursor: pointer;" id="cardStartTrumpet">
                         <div class="card-body py-5">
                             <i class="bi bi-music-note display-1 text-info mb-3"></i>
                             <h2 class="card-title">Trompete</h2>
@@ -217,30 +226,28 @@
                                     <!-- Schwierigkeits-Selector -->
                                     <div class="mb-2">
                                         <div class="btn-group btn-group-sm w-100" role="group">
-                                            <input type="radio" class="btn-check" name="difficultyOverride"
-                                                id="diffAuto" checked autocomplete="off"
-                                                onchange="setDifficultyOverride(0)">
+                                            <input type="radio" class="btn-check diff-selector" name="difficultyOverride"
+                                                id="diffAuto" checked autocomplete="off" value="0">
                                             <label class="btn btn-outline-primary" for="diffAuto">Auto (Lvl <span
                                                     id="autoLevelDisplay">1</span>)</label>
 
-                                            <input type="radio" class="btn-check" name="difficultyOverride" id="diff1"
-                                                autocomplete="off" onchange="setDifficultyOverride(1)">
+                                            <input type="radio" class="btn-check diff-selector" name="difficultyOverride" id="diff1"
+                                                autocomplete="off" value="1">
                                             <label class="btn btn-outline-success" for="diff1">Lvl 1</label>
 
-                                            <input type="radio" class="btn-check" name="difficultyOverride" id="diff2"
-                                                autocomplete="off" onchange="setDifficultyOverride(2)">
+                                            <input type="radio" class="btn-check diff-selector" name="difficultyOverride" id="diff2"
+                                                autocomplete="off" value="2">
                                             <label class="btn btn-outline-warning" for="diff2">Lvl 2</label>
 
-                                            <input type="radio" class="btn-check" name="difficultyOverride" id="diff3"
-                                                autocomplete="off" onchange="setDifficultyOverride(3)">
+                                            <input type="radio" class="btn-check diff-selector" name="difficultyOverride" id="diff3"
+                                                autocomplete="off" value="3">
                                             <label class="btn btn-outline-danger" for="diff3">Profi</label>
                                         </div>
                                     </div>
 
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div class="form-check form-switch mb-0">
-                                            <input class="form-check-input" type="checkbox" id="micModeSwitch"
-                                                onchange="toggleMicMode()">
+                                            <input class="form-check-input" type="checkbox" id="micModeSwitch">
                                             <label class="form-check-label small fw-bold" for="micModeSwitch">
                                                 <i class="bi bi-mic-fill"></i> Mikrofon (Beta)
                                             </label>
@@ -255,8 +262,7 @@
 
                             <!-- HINT BUTTON COMPACT -->
                             <div class="mb-2">
-                                <button class="btn btn-sm btn-outline-warning rounded-pill py-0"
-                                    onclick="playQuizHint()">
+                                <button class="btn btn-sm btn-outline-warning rounded-pill py-0" id="btnQuizHint">
                                     <i class="bi bi-ear"></i> Ton anhören
                                 </button>
                             </div>
@@ -274,8 +280,7 @@
                                 <!-- 1. TROMBONE SLIDER VIEW -->
                                 <div id="trombone-interface" class="trombone-visualizer-container">
                                     <div class="viz-wrapper">
-                                        <input type="range" id="quizSlideRange" min="1" max="7" step="0.05" value="1"
-                                            oninput="handleQuizInput(this.value)" onchange="snapQuizInput(this.value)">
+                                        <input type="range" id="quizSlideRange" min="1" max="7" step="0.05" value="1">
 
                                         <div class="trombone-visualizer">
                                             <div class="fixed-tubing"></div>
@@ -288,19 +293,19 @@
                                                 </div>
                                             </div>
                                             <!-- Marker -->
-                                            <div class="pos-marker" id="quiz-marker-1" onclick="snapQuizInput(1)"
+                                            <div class="pos-marker quiz-marker" id="quiz-marker-1" data-pos="1"
                                                 style="left: calc(95px + 0px);"><span>1</span></div>
-                                            <div class="pos-marker" id="quiz-marker-2" onclick="snapQuizInput(2)"
+                                            <div class="pos-marker quiz-marker" id="quiz-marker-2" data-pos="2"
                                                 style="left: calc(95px + 40px);"><span>2</span></div>
-                                            <div class="pos-marker" id="quiz-marker-3" onclick="snapQuizInput(3)"
+                                            <div class="pos-marker quiz-marker" id="quiz-marker-3" data-pos="3"
                                                 style="left: calc(95px + 80px);"><span>3</span></div>
-                                            <div class="pos-marker" id="quiz-marker-4" onclick="snapQuizInput(4)"
+                                            <div class="pos-marker quiz-marker" id="quiz-marker-4" data-pos="4"
                                                 style="left: calc(95px + 120px);"><span>4</span></div>
-                                            <div class="pos-marker" id="quiz-marker-5" onclick="snapQuizInput(5)"
+                                            <div class="pos-marker quiz-marker" id="quiz-marker-5" data-pos="5"
                                                 style="left: calc(95px + 160px);"><span>5</span></div>
-                                            <div class="pos-marker" id="quiz-marker-6" onclick="snapQuizInput(6)"
+                                            <div class="pos-marker quiz-marker" id="quiz-marker-6" data-pos="6"
                                                 style="left: calc(95px + 200px);"><span>6</span></div>
-                                            <div class="pos-marker" id="quiz-marker-7" onclick="snapQuizInput(7)"
+                                            <div class="pos-marker quiz-marker" id="quiz-marker-7" data-pos="7"
                                                 style="left: calc(95px + 240px);"><span>7</span></div>
                                         </div>
                                     </div>
@@ -310,21 +315,21 @@
                                 <div id="trumpet-interface" class="d-none py-3">
                                     <div class="trumpet-visualizer mx-auto" style="max-width: 300px;">
                                         <!-- Valve 1 -->
-                                        <div class="valve-group" id="valve-1" onclick="toggleValve(1, 'quiz')">
+                                        <div class="valve-group quiz-valve" id="valve-1" data-valve="1">
                                             <div class="valve-piston"></div>
                                             <div class="valve-stem"></div>
                                             <div class="valve-casing"></div>
                                             <div class="valve-label">1</div>
                                         </div>
                                         <!-- Valve 2 -->
-                                        <div class="valve-group" id="valve-2" onclick="toggleValve(2, 'quiz')">
+                                        <div class="valve-group quiz-valve" id="valve-2" data-valve="2">
                                             <div class="valve-piston"></div>
                                             <div class="valve-stem"></div>
                                             <div class="valve-casing"></div>
                                             <div class="valve-label">2</div>
                                         </div>
                                         <!-- Valve 3 -->
-                                        <div class="valve-group" id="valve-3" onclick="toggleValve(3, 'quiz')">
+                                        <div class="valve-group quiz-valve" id="valve-3" data-valve="3">
                                             <div class="valve-piston"></div>
                                             <div class="valve-stem"></div>
                                             <div class="valve-casing"></div>
@@ -367,21 +372,20 @@
 
                             <!-- BUTTONS -->
                             <div class="mobile-controls-container mb-4">
-                                <button class="btn btn-outline-secondary pos-btn active-pos"
-                                    onclick="snapQuizInput(1)">1</button>
-                                <button class="btn btn-outline-secondary pos-btn" onclick="snapQuizInput(2)">2</button>
-                                <button class="btn btn-outline-secondary pos-btn" onclick="snapQuizInput(3)">3</button>
-                                <button class="btn btn-outline-secondary pos-btn" onclick="snapQuizInput(4)">4</button>
-                                <button class="btn btn-outline-secondary pos-btn" onclick="snapQuizInput(5)">5</button>
-                                <button class="btn btn-outline-secondary pos-btn" onclick="snapQuizInput(6)">6</button>
-                                <button class="btn btn-outline-secondary pos-btn" onclick="snapQuizInput(7)">7</button>
+                                <button class="btn btn-outline-secondary pos-btn active-pos quiz-mobile-btn"
+                                    data-pos="1">1</button>
+                                <button class="btn btn-outline-secondary pos-btn quiz-mobile-btn" data-pos="2">2</button>
+                                <button class="btn btn-outline-secondary pos-btn quiz-mobile-btn" data-pos="3">3</button>
+                                <button class="btn btn-outline-secondary pos-btn quiz-mobile-btn" data-pos="4">4</button>
+                                <button class="btn btn-outline-secondary pos-btn quiz-mobile-btn" data-pos="5">5</button>
+                                <button class="btn btn-outline-secondary pos-btn quiz-mobile-btn" data-pos="6">6</button>
+                                <button class="btn btn-outline-secondary pos-btn quiz-mobile-btn" data-pos="7">7</button>
                             </div>
 
                             <div class="d-grid gap-2 col-12 col-md-6 mx-auto mt-2">
-                                <button class="btn btn-lg btn-success shadow py-3 fw-bold" id="checkAnswerBtn"
-                                    onclick="checkQuizAnswer()">Antwort prüfen</button>
+                                <button class="btn btn-lg btn-success shadow py-3 fw-bold" id="checkAnswerBtn">Antwort prüfen</button>
                                 <button class="btn btn-lg btn-primary shadow py-3 fw-bold" id="nextBtn"
-                                    style="display:none;" onclick="nextQuestion()">Nächste Note</button>
+                                    style="display:none;">Nächste Note</button>
                             </div>
                         </div>
                     </div>
@@ -416,9 +420,7 @@
                                 <!-- LEARN TROMBONE INTERFACE -->
                                 <div id="learn-trombone-interface" class="trombone-visualizer-container">
                                     <div class="viz-wrapper">
-                                        <input type="range" id="learnSlideRange" min="1" max="7" step="0.05" value="1"
-                                            oninput="handleLearnInput(this.value)"
-                                            onchange="handleLearnRelease(this.value)">
+                                        <input type="range" id="learnSlideRange" min="1" max="7" step="0.05" value="1">
                                         <div class="trombone-visualizer">
                                             <div class="fixed-tubing"></div>
                                             <div class="inner-slide-track"></div>
@@ -428,19 +430,19 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="pos-marker" id="learn-marker-1" onclick="handleLearnRelease(1)"
+                                            <div class="pos-marker learn-marker" id="learn-marker-1" data-pos="1"
                                                 style="left: calc(95px + 0px);"><span>1</span></div>
-                                            <div class="pos-marker" id="learn-marker-2" onclick="handleLearnRelease(2)"
+                                            <div class="pos-marker learn-marker" id="learn-marker-2" data-pos="2"
                                                 style="left: calc(95px + 40px);"><span>2</span></div>
-                                            <div class="pos-marker" id="learn-marker-3" onclick="handleLearnRelease(3)"
+                                            <div class="pos-marker learn-marker" id="learn-marker-3" data-pos="3"
                                                 style="left: calc(95px + 80px);"><span>3</span></div>
-                                            <div class="pos-marker" id="learn-marker-4" onclick="handleLearnRelease(4)"
+                                            <div class="pos-marker learn-marker" id="learn-marker-4" data-pos="4"
                                                 style="left: calc(95px + 120px);"><span>4</span></div>
-                                            <div class="pos-marker" id="learn-marker-5" onclick="handleLearnRelease(5)"
+                                            <div class="pos-marker learn-marker" id="learn-marker-5" data-pos="5"
                                                 style="left: calc(95px + 160px);"><span>5</span></div>
-                                            <div class="pos-marker" id="learn-marker-6" onclick="handleLearnRelease(6)"
+                                            <div class="pos-marker learn-marker" id="learn-marker-6" data-pos="6"
                                                 style="left: calc(95px + 200px);"><span>6</span></div>
-                                            <div class="pos-marker" id="learn-marker-7" onclick="handleLearnRelease(7)"
+                                            <div class="pos-marker learn-marker" id="learn-marker-7" data-pos="7"
                                                 style="left: calc(95px + 240px);"><span>7</span></div>
                                         </div>
                                     </div>
@@ -450,21 +452,21 @@
                                 <div id="learn-trumpet-interface" class="d-none py-3">
                                     <div class="trumpet-visualizer mx-auto" style="max-width: 300px;">
                                         <!-- Valve 1 -->
-                                        <div class="valve-group" id="learn-valve-1" onclick="toggleValve(1, 'learn')">
+                                        <div class="valve-group learn-valve" id="learn-valve-1" data-valve="1">
                                             <div class="valve-piston"></div>
                                             <div class="valve-stem"></div>
                                             <div class="valve-casing"></div>
                                             <div class="valve-label">1</div>
                                         </div>
                                         <!-- Valve 2 -->
-                                        <div class="valve-group" id="learn-valve-2" onclick="toggleValve(2, 'learn')">
+                                        <div class="valve-group learn-valve" id="learn-valve-2" data-valve="2">
                                             <div class="valve-piston"></div>
                                             <div class="valve-stem"></div>
                                             <div class="valve-casing"></div>
                                             <div class="valve-label">2</div>
                                         </div>
                                         <!-- Valve 3 -->
-                                        <div class="valve-group" id="learn-valve-3" onclick="toggleValve(3, 'learn')">
+                                        <div class="valve-group learn-valve" id="learn-valve-3" data-valve="3">
                                             <div class="valve-piston"></div>
                                             <div class="valve-stem"></div>
                                             <div class="valve-casing"></div>
@@ -475,20 +477,20 @@
                             </div>
 
                             <div class="mobile-controls-container">
-                                <button class="btn btn-outline-secondary pos-btn active-pos"
-                                    onclick="setLearnPosition(1)">1</button>
-                                <button class="btn btn-outline-secondary pos-btn"
-                                    onclick="setLearnPosition(2)">2</button>
-                                <button class="btn btn-outline-secondary pos-btn"
-                                    onclick="setLearnPosition(3)">3</button>
-                                <button class="btn btn-outline-secondary pos-btn"
-                                    onclick="setLearnPosition(4)">4</button>
-                                <button class="btn btn-outline-secondary pos-btn"
-                                    onclick="setLearnPosition(5)">5</button>
-                                <button class="btn btn-outline-secondary pos-btn"
-                                    onclick="setLearnPosition(6)">6</button>
-                                <button class="btn btn-outline-secondary pos-btn"
-                                    onclick="setLearnPosition(7)">7</button>
+                                <button class="btn btn-outline-secondary pos-btn active-pos learn-mobile-btn"
+                                    data-pos="1">1</button>
+                                <button class="btn btn-outline-secondary pos-btn learn-mobile-btn"
+                                    data-pos="2">2</button>
+                                <button class="btn btn-outline-secondary pos-btn learn-mobile-btn"
+                                    data-pos="3">3</button>
+                                <button class="btn btn-outline-secondary pos-btn learn-mobile-btn"
+                                    data-pos="4">4</button>
+                                <button class="btn btn-outline-secondary pos-btn learn-mobile-btn"
+                                    data-pos="5">5</button>
+                                <button class="btn btn-outline-secondary pos-btn learn-mobile-btn"
+                                    data-pos="6">6</button>
+                                <button class="btn btn-outline-secondary pos-btn learn-mobile-btn"
+                                    data-pos="7">7</button>
                             </div>
                         </div>
                     </div>
@@ -531,8 +533,72 @@
                             </div>
 
                             <!-- Reset Button -->
-                            <button class="btn btn-sm btn-outline-secondary" onclick="resetTheoryQuiz()">
+                            <button class="btn btn-sm btn-outline-secondary" id="btnResetTheory">
                                 <i class="bi bi-arrow-clockwise"></i> Quiz neu starten
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <div id="view-stats" class="view-section d-none">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-xl-8">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="mb-0"><i class="bi bi-graph-up text-info"></i> Statistiken</h2>
+                    <button class="btn btn-outline-primary rounded-pill" id="btnBackToTrainerStats">
+                        <i class="bi bi-arrow-left"></i> Zurück
+                    </button>
+                </div>
+
+                <!-- Statistiken -->
+                <div class="card shadow border-0 mb-4">
+                    <div class="card-header bg-info text-white fw-bold">
+                        <i class="bi bi-graph-up"></i> Deine Statistiken
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <h6 class="text-muted small">Heute</h6>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>Richtig beantwortet:</span>
+                                    <span class="badge bg-success" id="statTodayCorrect">0</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-1">
+                                    <span>Gesamt heute:</span>
+                                    <span class="badge bg-secondary" id="statTodayTotal">0</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-muted small">Insgesamt</h6>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>Richtig:</span>
+                                    <span class="badge bg-success" id="statTotalCorrect">0</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-1">
+                                    <span>Fragen:</span>
+                                    <span class="badge bg-secondary" id="statTotalQuestions">0</span>
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-muted">Genauigkeit: <span id="statAccuracy"
+                                            class="fw-bold">0%</span></small>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <h6 class="text-muted small mb-2" id="statsPosTitle">Genauigkeit pro Position</h6>
+                        <div id="positionStatsContainer" class="small"></div>
+                        
+                        <div class="mt-4 text-center d-grid gap-2 d-md-block">
+                            <button class="btn btn-success btn-lg" id="btnShareWhatsApp">
+                                <i class="bi bi-whatsapp"></i> Per WhatsApp teilen
+                            </button>
+                            <button class="btn btn-outline-secondary btn-lg" id="btnShareProgress">
+                                <i class="bi bi-share-fill"></i> Anderes...
+                            </button>
+                            <button class="btn btn-outline-secondary btn-lg d-none" id="btnStats">
+                                <i class="bi bi-graph-up"></i> Statistik
                             </button>
                         </div>
                     </div>
@@ -541,13 +607,34 @@
         </div>
     </div>
 
+    <!-- Privacy Modal -->
+    <div class="modal fade" id="privacyModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-shield-lock"></i> Datenspeicherung</h5>
+                </div>
+                <div class="modal-body">
+                    <p>Diese App speichert deinen Lernfortschritt (Level, XP, Statistiken) ausschließlich lokal in deinem <strong>Browser-Cache (LocalStorage)</strong>.</p>
+                    <p>Es werden keine persönlichen Daten an Server gesendet.</p>
+                    <div class="alert alert-warning small">
+                        <i class="bi bi-exclamation-triangle"></i> Wenn du deine Browserdaten löschst, geht dein Fortschritt verloren.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary w-100" id="btnPrivacyAccept">Verstanden & Akzeptieren</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Container -->
     <div id="view-instructions" class="view-section d-none">
         <div class="row justify-content-center">
             <div class="col-lg-10 col-xl-8">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2 class="mb-0"><i class="bi bi-info-circle-fill text-warning"></i> Anleitung & Hilfe</h2>
-                    <button class="btn btn-outline-primary rounded-pill" onclick="switchMainView('trainer')">
-                        <i class="bi bi-arrow-left"></i> Zurück
+                    <button class="btn btn-outline-primary rounded-pill" id="btnBackToTrainer1">
                     </button>
                 </div>
 
@@ -638,6 +725,22 @@
                     </div>
                 </div>
 
+                <!-- Datenschutz Highlight -->
+                <div class="card shadow border-success mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="bi bi-shield-lock-fill"></i> Datenschutz & Privatsphäre</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Ich (Michael Schellenberger) nehme deinen Datenschutz ernst. Ich habe diese WebApp ausschließlich mit KI erstellt und so konzipiert, dass deine Daten dir gehören.</p>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item px-0"><i class="bi bi-hdd-fill text-success me-2"></i> <strong>100% Lokal:</strong> Dein Fortschritt, Level und Statistiken werden <u>nur</u> auf deinem Gerät (im Browser-Cache) gespeichert.</li>
+                            <li class="list-group-item px-0"><i class="bi bi-cloud-slash-fill text-success me-2"></i> <strong>Keine Cloud:</strong> Es werden keine Daten an externe Server gesendet.</li>
+                            <li class="list-group-item px-0"><i class="bi bi-mic-fill text-success me-2"></i> <strong>Mikrofon:</strong> Die Tonerkennung erfolgt in Echtzeit direkt in deinem Browser. Es werden keine Audioaufnahmen erstellt oder versendet.</li>
+                            <li class="list-group-item px-0"><i class="bi bi-eye-slash-fill text-success me-2"></i> <strong>Kein Tracking:</strong> Ich verwende keine Analyse-Tools oder Werbe-Tracker.</li>
+                        </ul>
+                    </div>
+                </div>
+
                 <!-- Zugtabelle -->
                 <div class="card shadow border-0 mb-4">
                     <div class="card-header bg-warning text-dark fw-bold">
@@ -663,56 +766,7 @@
                     </div>
                 </div>
 
-                <!-- Statistiken -->
-                <div class="card shadow border-0 mb-4">
-                    <div class="card-header bg-info text-white fw-bold">
-                        <i class="bi bi-graph-up"></i> Deine Statistiken
-                    </div>
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <h6 class="text-muted small">Heute</h6>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span>Richtig beantwortet:</span>
-                                    <span class="badge bg-success" id="statTodayCorrect">0</span>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center mt-1">
-                                    <span>Gesamt heute:</span>
-                                    <span class="badge bg-secondary" id="statTodayTotal">0</span>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <h6 class="text-muted small">Insgesamt</h6>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span>Richtig:</span>
-                                    <span class="badge bg-success" id="statTotalCorrect">0</span>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center mt-1">
-                                    <span>Fragen:</span>
-                                    <span class="badge bg-secondary" id="statTotalQuestions">0</span>
-                                </div>
-                                <div class="mt-2">
-                                    <small class="text-muted">Genauigkeit: <span id="statAccuracy"
-                                            class="fw-bold">0%</span></small>
-                                </div>
-                            </div>
-                        </div>
-                        <hr>
-                        <h6 class="text-muted small mb-2" id="statsPosTitle">Genauigkeit pro Position</h6>
-                        <div id="positionStatsContainer" class="small">
-                            <!-- Wird per JS gefüllt -->
-                        </div>
-                        
-                        <div class="mt-3 text-center">
-                            <button class="btn btn-outline-success" onclick="shareProgressReport()">
-                                <i class="bi bi-share-fill"></i> Fortschritt teilen
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="text-center"><button class="btn btn-primary btn-lg"
-                        onclick="switchMainView('trainer')">Zurück zum Trainer</button></div>
+                <div class="text-center"><button class="btn btn-primary btn-lg" id="btnBackToTrainer2">Zurück zum Trainer</button></div>
             </div>
         </div>
     </div>
@@ -723,12 +777,12 @@
         <div class="container">
             Erstellt von M. Schellenberger 11/2025 mit Gemini (<a href="https://Michael.schellenberger.biz"
                 target="_blank" rel="noopener noreferrer"
-                class="text-decoration-none text-muted">Michael.schellenberger.biz</a>) - Version 2.0
+                class="text-decoration-none text-muted">Michael.schellenberger.biz</a>) - Version 2.1
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script type="module" src="js/main.js"></script>
+    <script type="module" src="js/main.js?v=40"></script>
     <!-- Service Worker Registration -->
     <script>
         if ('serviceWorker' in navigator) {
